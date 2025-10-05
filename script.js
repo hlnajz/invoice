@@ -1,118 +1,183 @@
+let items = [];
 
-        let items = [];
+// Define themes by your names
+const themeColors = [
+    ["#1e90ff", "#00bfff"], // Sea
+    ["#ffd700", "#ff8c00"], // Sunny
+    ["#87ceeb", "#4682b4"], // Sky
+    ["#8707ff", "#ff78f5"], // HLNAJZ
+    ["#ff4500", "#ffa500"]  // Orange
+];
 
-        function addItem() {
-            const tbody = document.querySelector("#itemsTable tbody");
-            const row = document.createElement("tr");
+// Apply selected theme to inputs, table, titles
+const themeSelect = document.getElementById("themeSelect");
+themeSelect.addEventListener("change", () => {
+    const theme = themeColors[themeSelect.value];
+    document.documentElement.style.setProperty('--theme1', theme[0]);
+    document.documentElement.style.setProperty('--theme2', theme[1]);
 
-            row.innerHTML = `
-                <td><input type="text" placeholder="Item name" class="input item-name"></td>
-                <td><input type="number" placeholder="Price" class="input item-price" min="0"></td>
-                <td><input type="number" placeholder="Qty" class="input item-qty" min="1" value="1"></td>
-                <td class="item-total">0</td>
-                <td><button onclick="removeItem(this)">Remove</button></td>
-            `;
+    // Update table headers, buttons, labels, and inputs
+    document.querySelectorAll("h1, h3, label, button").forEach(el => {
+        el.style.color = theme[1];
+    });
+    document.querySelectorAll(".input").forEach(el => {
+        el.style.borderColor = theme[0];
+    });
+    document.querySelectorAll("table").forEach(el => {
+        el.style.borderColor = theme[0];
+    });
+});
 
-            tbody.appendChild(row);
-            row.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
-            updateTotals();
-        }
+// Add item
+function addItem() {
+    const tbody = document.querySelector("#itemsTable tbody");
+    const row = document.createElement("tr");
 
-        function removeItem(btn) {
-            btn.closest("tr").remove();
-            updateTotals();
-        }
+    row.innerHTML = `
+        <td><input type="text" placeholder="Item name" class="input item-name"></td>
+        <td><input type="number" placeholder="Price" class="input item-price" min="0"></td>
+        <td><input type="number" placeholder="Qty" class="input item-qty" min="1" value="1"></td>
+        <td class="item-total">0</td>
+        <td><button onclick="removeItem(this)">Remove</button></td>
+    `;
 
-        function updateTotals() {
-            const rows = document.querySelectorAll("#itemsTable tbody tr");
-            let grandTotal = 0;
-            rows.forEach(row => {
-                const price = parseFloat(row.querySelector(".item-price").value) || 0;
-                const qty = parseInt(row.querySelector(".item-qty").value) || 1;
-                const total = price * qty;
-                row.querySelector(".item-total").textContent = total.toFixed(2);
-                grandTotal += total;
-            });
-            document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
-        }
+    tbody.appendChild(row);
+    row.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    updateTotals();
+}
 
-        document.getElementById("logoInput").addEventListener("change", function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => document.getElementById("logoPreview").src = e.target.result;
-                reader.readAsDataURL(file);
-            }
-        });
+function removeItem(btn) {
+    btn.closest("tr").remove();
+    updateTotals();
+}
 
-        function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'pt', 'a4');
-            let y = 40;
+function updateTotals() {
+    const rows = document.querySelectorAll("#itemsTable tbody tr");
+    let grandTotal = 0;
+    rows.forEach(row => {
+        const price = parseFloat(row.querySelector(".item-price").value) || 0;
+        const qty = parseInt(row.querySelector(".item-qty").value) || 1;
+        const total = price * qty;
+        row.querySelector(".item-total").textContent = total.toFixed(2);
+        grandTotal += total;
+    });
+    document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
+}
 
-            const logo = document.getElementById("logoPreview");
-            if (logo.src) doc.addImage(logo.src, 'PNG', 40, y, 120, 60);
+// Logo preview
+document.getElementById("logoInput").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById("logoPreview").src = e.target.result;
+        reader.readAsDataURL(file);
+    }
+});
 
-            y += 80;
-            doc.setFontSize(16);
-            doc.text("Invoice", 450, 70);
+// Export PDF
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'pt', 'a4');
+    let y = 40;
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-            doc.setFontSize(12);
-            doc.text(`From: ${document.getElementById("fromName").value}`, 40, y);
-            doc.text(`${document.getElementById("fromAddress").value}`, 40, y + 15);
-            doc.text(`To: ${document.getElementById("clientName").value}`, 300, y);
-            doc.text(`${document.getElementById("clientAddress").value}`, 300, y + 15);
+    // Get selected theme
+    const theme = themeColors[themeSelect.value];
+    const color1 = theme[0];
+    const color2 = theme[1];
 
-            doc.text(`Invoice #: ${document.getElementById("invoiceNumber").value}`, 40, y + 45);
-            doc.text(`Invoice Date: ${document.getElementById("invoiceDate").value}`, 40, y + 60);
-            doc.text(`Due Date: ${document.getElementById("dueDate").value}`, 40, y + 75);
+    // Title
+    doc.setFontSize(28);
+    doc.setTextColor(color2);
+    doc.text("INVOICE", pageWidth - 100, y, { align: "right" });
 
-            y += 100;
-            doc.text("Item", 40, y);
-            doc.text("Price", 280, y);
-            doc.text("Qty", 380, y);
-            doc.text("Total", 480, y);
-            y += 10;
+    // From / To boxes
+    doc.setFillColor(240, 240, 240);
+    doc.rect(40, y + 20, 240, 80, 'F');
+    doc.rect(310, y + 20, 240, 80, 'F');
 
-            const rows = document.querySelectorAll("#itemsTable tbody tr");
-            rows.forEach(row => {
-                y += 20;
-                const item = row.querySelector(".item-name").value;
-                const price = row.querySelector(".item-price").value;
-                const qty = row.querySelector(".item-qty").value;
-                const total = row.querySelector(".item-total").textContent;
-                doc.text(item, 40, y);
-                doc.text(price, 280, y);
-                doc.text(qty, 380, y);
-                doc.text(total, 480, y);
-            });
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("From:", 50, y + 40);
+    doc.text(document.getElementById("fromName").value, 50, y + 55);
+    doc.text(document.getElementById("fromAddress").value, 50, y + 70);
 
-            y += 30;
-            doc.setFontSize(14);
-            doc.text(`Grand Total: $${document.getElementById("grandTotal").textContent}`, 40, y);
+    doc.text("To:", 320, y + 40);
+    doc.text(document.getElementById("clientName").value, 320, y + 55);
+    doc.text(document.getElementById("clientAddress").value, 320, y + 70);
 
-            const description = document.getElementById("description").value;
-            if (description) {
-                y += 30;
-                doc.setFontSize(12);
-                doc.text(`Notes: ${description}`, 40, y);
-            }
+    // Invoice details box
+    doc.rect(40, y + 110, 510, 60, 'F');
+    doc.setTextColor(color2);
+    doc.text(`Invoice #: ${document.getElementById("invoiceNumber").value}`, 50, y + 130);
+    doc.text(`Invoice Date: ${document.getElementById("invoiceDate").value}`, 50, y + 145);
+    doc.text(`Due Date: ${document.getElementById("dueDate").value}`, 50, y + 160);
 
-            doc.save("invoice.pdf");
-        }
+    y += 180;
 
-        function exportExcel() {
-            const wb = XLSX.utils.book_new();
-            const ws_data = [["Item", "Price", "Quantity", "Total"]];
-            document.querySelectorAll("#itemsTable tbody tr").forEach(row => {
-                const item = row.querySelector(".item-name").value;
-                const price = row.querySelector(".item-price").value;
-                const qty = row.querySelector(".item-qty").value;
-                const total = row.querySelector(".item-total").textContent;
-                ws_data.push([item, price, qty, total]);
-            });
-            ws_data.push(["", "", "Grand Total", document.getElementById("grandTotal").textContent]);
-            const ws = XLSX.utils.aoa_to_sheet(ws_data);
-            XLSX.utils.book_append_sheet(wb, ws, "Invoice");
-            XLSX.writeFile(wb, "invoice.xlsx");
-        }
+    // Items table
+    const rows = [];
+    document.querySelectorAll("#itemsTable tbody tr").forEach(row => {
+        rows.push([
+            row.querySelector(".item-name").value,
+            row.querySelector(".item-price").value,
+            row.querySelector(".item-qty").value,
+            row.querySelector(".item-total").textContent
+        ]);
+    });
+
+    doc.setFontSize(14);
+    doc.setTextColor(color2);
+    doc.text("Items", 40, y);
+
+    y += 10;
+    doc.autoTable({
+        startY: y,
+        head: [['Item', 'Price', 'Qty', 'Total']],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: colorHexToRgb(color1), textColor: 255 },
+        styles: { fillColor: [255, 255, 255], textColor: 0, fontSize: 12 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 40, right: 40 }
+    });
+
+    y = doc.lastAutoTable.finalY + 20;
+    doc.setFontSize(16);
+    doc.setTextColor(color2);
+    doc.text(`Grand Total: $${document.getElementById("grandTotal").textContent}`, pageWidth - 180, y, { align: 'right' });
+
+    const description = document.getElementById("description").value;
+    if (description) {
+        y += 30;
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text(`Notes: ${description}`, 40, y);
+    }
+
+    doc.save("invoice.pdf");
+}
+
+// Export Excel
+function exportExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws_data = [["Item", "Price", "Quantity", "Total"]];
+    document.querySelectorAll("#itemsTable tbody tr").forEach(row => {
+        const item = row.querySelector(".item-name").value;
+        const price = row.querySelector(".item-price").value;
+        const qty = row.querySelector(".item-qty").value;
+        const total = row.querySelector(".item-total").textContent;
+        ws_data.push([item, price, qty, total]);
+    });
+    ws_data.push(["", "", "Grand Total", document.getElementById("grandTotal").textContent]);
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, "Invoice");
+    XLSX.writeFile(wb, "invoice.xlsx");
+}
+
+// Helper: convert hex to rgb array
+function colorHexToRgb(hex) {
+    hex = hex.replace("#", "");
+    const bigint = parseInt(hex, 16);
+    return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+}

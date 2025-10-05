@@ -5,52 +5,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Generator</title>
+    <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
     <div class="invoice-container">
-        <h1>Invoice Generator</h1>
+        <h1 id="invoiceTitle">Invoice Generator</h1>
 
-        <div class="invoice-grid">
-            <div class="grid-item">
+        <div class="theme-picker">
+            <label>Select Theme:</label>
+            <select id="themeSelect">
+                <option value="0">Sea</option>
+                <option value="1">Sunny</option>
+                <option value="2">Sky</option>
+                <option value="3">HLNAJZ</option>
+                <option value="4">Orange</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col">
                 <label>From Name</label>
                 <input type="text" id="fromName" class="input" placeholder="Your company or name">
-            </div>
-            <div class="grid-item">
+
                 <label>From Address</label>
-                <input type="text" id="fromAddress" class="input" placeholder="Company address">
+                <textarea id="fromAddress" class="input" rows="2" placeholder="Company address"></textarea>
             </div>
-            <div class="grid-item">
+            <div class="col">
                 <label>Client Name</label>
                 <input type="text" id="clientName" class="input" placeholder="Client Name">
-            </div>
-            <div class="grid-item">
-                <label>Client Address</label>
-                <input type="text" id="clientAddress" class="input" placeholder="Client address">
-            </div>
 
-            <div class="grid-item">
+                <label>Client Address</label>
+                <textarea id="clientAddress" class="input" rows="2" placeholder="Client address"></textarea>
+            </div>
+            <div class="col">
                 <label>Invoice Number</label>
                 <input type="text" id="invoiceNumber" class="input" placeholder="INV-0001">
-            </div>
-            <div class="grid-item">
+
                 <label>Invoice Date</label>
-                <input type="date" id="invoiceDate" class="input" value="">
-            </div>
-            <div class="grid-item">
+                <input type="date" id="invoiceDate" class="input">
+
                 <label>Due Date</label>
-                <input type="date" id="dueDate" class="input" value="">
-            </div>
-            <div class="grid-item">
-                <label>Company Logo</label>
-                <input type="file" id="logoInput" class="input" accept="image/*">
+                <input type="date" id="dueDate" class="input">
             </div>
         </div>
-        <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview" />
+
+        <label>Company Logo</label>
+        <input type="file" id="logoInput" class="input" accept="image/*">
+        <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview">
 
         <label>Description / Notes</label>
         <textarea id="description" class="input" rows="2" placeholder="Invoice description or notes..."></textarea>
@@ -68,24 +75,25 @@
             </thead>
             <tbody></tbody>
         </table>
-        <button onclick="addItem()">Add Item</button>
+        <button class="btn" onclick="addItem()">Add Item</button>
 
         <h3>Total: $<span id="grandTotal">0.00</span></h3>
 
         <div class="actions">
-            <button onclick="exportPDF()">Export PDF</button>
-            <button onclick="exportExcel()">Export Excel</button>
+            <button class="btn" onclick="exportPDF()">Export PDF</button>
+            <button class="btn" onclick="exportExcel()">Export Excel</button>
         </div>
+
+        <footer>
+            Created by Hamza Labbaalli | <a href="https://hlnajz.com" target="_blank">hlnajz.com</a>
+        </footer>
     </div>
 
-    <div class="footer">
-        <p>Created by <strong>Hamza Labbaalli</strong> | <a href="https://hlnajz.com" target="_blank">hlnajz.com</a></p>
-    </div>
-
-
+    <div id="toast"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script defer src="script.js"></script>
 </body>
 
 </html>
