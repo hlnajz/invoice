@@ -5,71 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 
-        .invoice-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        input,
-        button {
-            padding: 8px;
-            margin: 5px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        .actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .logo-preview {
-            max-height: 80px;
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 
 <body>
     <div class="invoice-container">
         <h1>Invoice Generator</h1>
 
-        <label>Company Logo: <input type="file" id="logoInput" accept="image/*"></label>
+        <div class="invoice-grid">
+            <div class="grid-item">
+                <label>From Name</label>
+                <input type="text" id="fromName" class="input" placeholder="Your company or name">
+            </div>
+            <div class="grid-item">
+                <label>From Address</label>
+                <input type="text" id="fromAddress" class="input" placeholder="Company address">
+            </div>
+            <div class="grid-item">
+                <label>Client Name</label>
+                <input type="text" id="clientName" class="input" placeholder="Client Name">
+            </div>
+            <div class="grid-item">
+                <label>Client Address</label>
+                <input type="text" id="clientAddress" class="input" placeholder="Client address">
+            </div>
+
+            <div class="grid-item">
+                <label>Invoice Number</label>
+                <input type="text" id="invoiceNumber" class="input" placeholder="INV-0001">
+            </div>
+            <div class="grid-item">
+                <label>Invoice Date</label>
+                <input type="date" id="invoiceDate" class="input" value="">
+            </div>
+            <div class="grid-item">
+                <label>Due Date</label>
+                <input type="date" id="dueDate" class="input" value="">
+            </div>
+            <div class="grid-item">
+                <label>Company Logo</label>
+                <input type="file" id="logoInput" class="input" accept="image/*">
+            </div>
+        </div>
         <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview" />
 
-        <label>Invoice Description:</label>
-        <input type="text" id="description" placeholder="Invoice description..." style="width:100%;">
+        <label>Description / Notes</label>
+        <textarea id="description" class="input" rows="2" placeholder="Invoice description or notes..."></textarea>
 
         <h3>Items</h3>
         <table id="itemsTable">
@@ -82,12 +65,11 @@
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
-            </tbody>
+            <tbody></tbody>
         </table>
         <button onclick="addItem()">Add Item</button>
 
-        <h3>Total: $<span id="grandTotal">0</span></h3>
+        <h3>Total: $<span id="grandTotal">0.00</span></h3>
 
         <div class="actions">
             <button onclick="exportPDF()">Export PDF</button>
@@ -105,19 +87,15 @@
             const row = document.createElement("tr");
 
             row.innerHTML = `
-      <td><input type="text" placeholder="Item name" class="item-name"></td>
-      <td><input type="number" placeholder="Price" class="item-price" min="0"></td>
-      <td><input type="number" placeholder="Qty" class="item-qty" min="1" value="1"></td>
-      <td class="item-total">0</td>
-      <td><button onclick="removeItem(this)">Remove</button></td>
-    `;
+                <td><input type="text" placeholder="Item name" class="input item-name"></td>
+                <td><input type="number" placeholder="Price" class="input item-price" min="0"></td>
+                <td><input type="number" placeholder="Qty" class="input item-qty" min="1" value="1"></td>
+                <td class="item-total">0</td>
+                <td><button onclick="removeItem(this)">Remove</button></td>
+            `;
 
             tbody.appendChild(row);
-
-            row.querySelectorAll("input").forEach(input => {
-                input.addEventListener("input", updateTotals);
-            });
-
+            row.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
             updateTotals();
         }
 
@@ -150,39 +128,56 @@
 
         function exportPDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF('p', 'pt', 'a4');
+            let y = 40;
 
             const logo = document.getElementById("logoPreview");
-            if (logo.src) doc.addImage(logo.src, 'PNG', 10, 10, 50, 20);
+            if (logo.src) doc.addImage(logo.src, 'PNG', 40, y, 120, 60);
 
+            y += 80;
             doc.setFontSize(16);
-            doc.text("Invoice", 70, 20);
+            doc.text("Invoice", 450, 70);
 
-            const description = document.getElementById("description").value;
             doc.setFontSize(12);
-            doc.text("Description: " + description, 10, 40);
+            doc.text(`From: ${document.getElementById("fromName").value}`, 40, y);
+            doc.text(`${document.getElementById("fromAddress").value}`, 40, y + 15);
+            doc.text(`To: ${document.getElementById("clientName").value}`, 300, y);
+            doc.text(`${document.getElementById("clientAddress").value}`, 300, y + 15);
 
-            let y = 50;
-            doc.text("Item", 10, y);
-            doc.text("Price", 80, y);
-            doc.text("Qty", 120, y);
-            doc.text("Total", 150, y);
+            doc.text(`Invoice #: ${document.getElementById("invoiceNumber").value}`, 40, y + 45);
+            doc.text(`Invoice Date: ${document.getElementById("invoiceDate").value}`, 40, y + 60);
+            doc.text(`Due Date: ${document.getElementById("dueDate").value}`, 40, y + 75);
+
+            y += 100;
+            doc.text("Item", 40, y);
+            doc.text("Price", 280, y);
+            doc.text("Qty", 380, y);
+            doc.text("Total", 480, y);
+            y += 10;
 
             const rows = document.querySelectorAll("#itemsTable tbody tr");
             rows.forEach(row => {
-                y += 10;
+                y += 20;
                 const item = row.querySelector(".item-name").value;
                 const price = row.querySelector(".item-price").value;
                 const qty = row.querySelector(".item-qty").value;
                 const total = row.querySelector(".item-total").textContent;
-
-                doc.text(item, 10, y);
-                doc.text(price, 80, y);
-                doc.text(qty, 120, y);
-                doc.text(total, 150, y);
+                doc.text(item, 40, y);
+                doc.text(price, 280, y);
+                doc.text(qty, 380, y);
+                doc.text(total, 480, y);
             });
 
-            doc.text("Grand Total: $" + document.getElementById("grandTotal").textContent, 10, y + 20);
+            y += 30;
+            doc.setFontSize(14);
+            doc.text(`Grand Total: $${document.getElementById("grandTotal").textContent}`, 40, y);
+
+            const description = document.getElementById("description").value;
+            if (description) {
+                y += 30;
+                doc.setFontSize(12);
+                doc.text(`Notes: ${description}`, 40, y);
+            }
 
             doc.save("invoice.pdf");
         }
