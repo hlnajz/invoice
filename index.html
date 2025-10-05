@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input,
+        button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ccc;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .logo-preview {
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-container">
+        <h1>Invoice Generator</h1>
+
+        <label>Company Logo: <input type="file" id="logoInput" accept="image/*"></label>
+        <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview" />
+
+        <label>Invoice Description:</label>
+        <input type="text" id="description" placeholder="Invoice description..." style="width:100%;">
+
+        <h3>Items</h3>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button onclick="addItem()">Add Item</button>
+
+        <h3>Total: $<span id="grandTotal">0</span></h3>
+
+        <div class="actions">
+            <button onclick="exportPDF()">Export PDF</button>
+            <button onclick="exportExcel()">Export Excel</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let items = [];
+
+        function addItem() {
+            const tbody = document.querySelector("#itemsTable tbody");
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+      <td><input type="text" placeholder="Item name" class="item-name"></td>
+      <td><input type="number" placeholder="Price" class="item-price" min="0"></td>
+      <td><input type="number" placeholder="Qty" class="item-qty" min="1" value="1"></td>
+      <td class="item-total">0</td>
+      <td><button onclick="removeItem(this)">Remove</button></td>
+    `;
+
+            tbody.appendChild(row);
+
+            row.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", updateTotals);
+            });
+
+            updateTotals();
+        }
+
+        function removeItem(btn) {
+            btn.closest("tr").remove();
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const rows = document.querySelectorAll("#itemsTable tbody tr");
+            let grandTotal = 0;
+            rows.forEach(row => {
+                const price = parseFloat(row.querySelector(".item-price").value) || 0;
+                const qty = parseInt(row.querySelector(".item-qty").value) || 1;
+                const total = price * qty;
+                row.querySelector(".item-total").textContent = total.toFixed(2);
+                grandTotal += total;
+            });
+            document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
+        }
+
+        document.getElementById("logoInput").addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById("logoPreview").src = e.target.result;
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const logo = document.getElementById("logoPreview");
+            if (logo.src) doc.addImage(logo.src, 'PNG', 10, 10, 50, 20);
+
+            doc.setFontSize(16);
+            doc.text("Invoice", 70, 20);
+
+            const description = document.getElementById("description").value;
+            doc.setFontSize(12);
+            doc.text("Description: " + description, 10, 40);
+
+            let y = 50;
+            doc.text("Item", 10, y);
+            doc.text("Price", 80, y);
+            doc.text("Qty", 120, y);
+            doc.text("Total", 150, y);
+
+            const rows = document.querySelectorAll("#itemsTable tbody tr");
+            rows.forEach(row => {
+                y += 10;
+                const item = row.querySelector(".item-name").value;
+                const price = row.querySelector(".item-price").value;
+                const qty = row.querySelector(".item-qty").value;
+                const total = row.querySelector(".item-total").textContent;
+
+                doc.text(item, 10, y);
+                doc.text(price, 80, y);
+                doc.text(qty, 120, y);
+                doc.text(total, 150, y);
+            });
+
+            doc.text("Grand Total: $" + document.getElementById("grandTotal").textContent, 10, y + 20);
+
+            doc.save("invoice.pdf");
+        }
+
+        function exportExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [["Item", "Price", "Quantity", "Total"]];
+            document.querySelectorAll("#itemsTable tbody tr").forEach(row => {
+                const item = row.querySelector(".item-name").value;
+                const price = row.querySelector(".item-price").value;
+                const qty = row.querySelector(".item-qty").value;
+                const total = row.querySelector(".item-total").textContent;
+                ws_data.push([item, price, qty, total]);
+            });
+            ws_data.push(["", "", "Grand Total", document.getElementById("grandTotal").textContent]);
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "Invoice");
+            XLSX.writeFile(wb, "invoice.xlsx");
+        }
+    </script>
+</body>
+
+</html>
