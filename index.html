@@ -1,99 +1,303 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator</title>
-    <link rel="shortcut icon" href="assets/logo.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SweetInvoice | by Hamza Labbaalli | HLNAJZ</title>
     <link rel="stylesheet" href="style.css">
+    <!-- SEO meta -->
+    <meta name="description"
+        content="SweetInvoice – Free online invoice generator by Hamza Labbaalli. Create professional invoices with themes, PDF/Excel export, and customizable templates.">
+    <meta name="keywords"
+        content="SweetInvoice, invoice generator, online invoices, Hamza Labbaalli, HLNAJZ, PDF invoices, Excel invoices, business invoicing, free invoicing tool">
+    <meta name="author" content="Hamza Labbaalli | HLNAJZ">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="SweetInvoice | Hamza Labbaalli | HLNAJZ">
+    <meta property="og:description"
+        content="Generate professional invoices online with SweetInvoice by Hamza Labbaalli. Includes themes, PDF/Excel export, and customizable templates.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hlnajz.com">
+    <meta property="og:image" content="https://hlnajz.com/assets/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SweetInvoice | Hamza Labbaalli | HLNAJZ">
+    <meta name="twitter:description"
+        content="Generate professional invoices online with SweetInvoice by Hamza Labbaalli. Themes, templates, and PDF/Excel export included.">
+    <meta name="twitter:image" content="https://hlnajz.com/assets/logo.png">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/logo.png" type="image/png">
+
+    <!-- Google Fonts (available to use in preview) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;700&family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet">
+
+
+    <!-- Libraries (single copy each) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+
 </head>
 
 <body>
-    <div class="invoice-container">
-        <h1 id="invoiceTitle">Invoice Generator</h1>
+    <div id="hero-bg">
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+    </div>
+    <div id="main-content">
+        <div class="container">
+            <!-- Header -->
+            <div class="" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <span class="breathe-animation">SweetInvoice</span>
+                <small class="signature-small">by Hamza
+                    Labbaalli | HLNAJZ</small>
+                <hr style="width: 50px; border: 1px solid #236ee3; margin-top: 10px;">
+            </div>
+            <h3 style="text-align: center; margin: 20px 0;">Your Invoice</h3>
+            <!-- Top controls -->
+            <div class="grid cols-3">
 
-        <div class="theme-picker">
-            <label>Select Theme:</label>
-            <select id="themeSelect">
-                <option value="0">Sea</option>
-                <option value="1">Sunny</option>
-                <option value="2">Sky</option>
-                <option value="3">HLNAJZ</option>
-                <option value="4">Orange</option>
-            </select>
+                <div class="form-group ">
+
+                    <input type="file" id="logoInput" class="form-field" accept="image/*">
+                    <label for="logoInput" class="form-label">Logo (image)</label>
+                    <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview" />
+                    <div class="form-group">
+                        <select id="logoPosition" class="form-field">
+                            <option value="left">LEFT</option>
+                            <option value="center" selected>CENTER</option>
+                            <option value="right">RIGHT</option>
+                        </select>
+                        <label for="logoPosition" class="form-label">Logo position</label>
+                    </div>
+                    <div class="form-group">
+                        <select id="invoiceType" class="form-field">
+                            <option value="PRODUCT">PRODUCT</option>
+                            <option value="SERVICE">SERVICE</option>
+                            <option value="CUSTOM">CUSTOM</option>
+                        </select>
+                        <label for="invoiceType" class="form-label">Invoice Type</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="invoiceNumber" class="form-field">
+                    <label for="invoiceNumber" class="form-label">Invoice #</label>
+
+                    <input type="date" id="invoiceDate" class="form-field">
+                    <label for="invoiceDate" class="form-label">Invoice Date</label>
+
+                    <input type="date" id="dueDate" class="form-field">
+                    <label for="dueDate" class="form-label">Due Date</label>
+
+                    <select id="dateFormat" class="form-field">
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                    <label for="dateFormat" class="form-label">Date Format</label>
+                </div>
+
+                <div class="form-group">
+                    <select id="templateSelect" class="form-field">
+                        <option value="classic">Classic</option>
+                        <option value="modern">Modern</option>
+                    </select>
+                    <label for="templateSelect" class="form-label">Template</label>
+
+                    <input type="color" id="themeColor" class="form-field" value="#1e90ff">
+                    <label for="themeColor" class="form-label">Theme color</label>
+
+                    <input type="color" id="accentColor" class="form-field" value="#00bfff">
+                    <label for="accentColor" class="form-label">Accent color</label>
+
+                    <select id="fontSelect" class="form-field">
+                        <option value="Inter">Inter</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Poppins">Poppins</option>
+                    </select>
+                    <label for="fontSelect" class="form-label">Font</label>
+
+                    <select id="currencySelect" class="form-field">
+                        <option value="MAD">DH</option>
+                        <option value="USD">$</option>
+                        <option value="EUR">€</option>
+                        <option value="GBP">£</option>
+                    </select>
+                    <label for="currencySelect" class="form-label">Currency</label>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Company (Billed By) -->
+            <h3>Company (Billed By)</h3>
+            <div class="grid cols-3">
+                <div class="form-group">
+                    <input type="text" id="fromName" class="form-field" required>
+                    <label for="fromName" class="form-label">Contact Name (required)</label>
+
+                    <input type="text" id="fromCompany" class="form-field">
+                    <label for="fromCompany" class="form-label">Company Name</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="fromAddress" class="form-field">
+                    <label for="fromAddress" class="form-label">Address</label>
+
+                    <input type="text" id="fromCity" class="form-field">
+                    <label for="fromCity" class="form-label">City</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="fromState" class="form-field">
+                    <label for="fromState" class="form-label">State</label>
+
+                    <input type="text" id="fromPostal" class="form-field">
+                    <label for="fromPostal" class="form-label">Postal Code</label>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Client (Billed To) -->
+            <h3>Client (Billed To)</h3>
+            <div class="grid cols-3">
+                <div class="form-group">
+                    <input type="text" id="clientName" class="form-field" required>
+                    <label for="clientName" class="form-label">Client Name (required)</label>
+
+                    <input type="text" id="clientAddress" class="form-field">
+                    <label for="clientAddress" class="form-label">Address</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="clientCity" class="form-field">
+                    <label for="clientCity" class="form-label">City</label>
+
+                    <input type="text" id="clientState" class="form-field">
+                    <label for="clientState" class="form-label">State</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="clientPostal" class="form-field">
+                    <label for="clientPostal" class="form-label">Postal Code</label>
+                    <small class="muted">Optional fields for client</small>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Items -->
+            <h3>Items</h3>
+            <div>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">S.No</th>
+                            <th>Product</th>
+                            <th style="width:120px">Rate</th>
+                            <th style="width:100px">Quantity</th>
+                            <th style="width:120px">Total</th>
+                            <th style="width:80px">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="right small muted">Subtotal</td>
+                            <td id="subtotalCell">0.00</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="right small muted">Grand Total</td>
+                            <td id="grandTotalCell" style="font-weight:700">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top:8px">
+                    <button class="btn" id="addItemBtn">Add Item</button>
+                    <label class="inline small muted" style="margin-left:12px">Currency sign applied
+                        automatically</label>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Extra sections -->
+            <h3>Extra Sections</h3>
+            <div class="form-group">
+                <textarea id="description" class="form-field"></textarea>
+                <label for="description" class="form-label">Notes / Description</label>
+            </div>
+
+            <div class="form-group">
+                <textarea id="terms" class="form-field"></textarea>
+                <label for="terms" class="form-label">Terms & Conditions</label>
+            </div>
+
+            <div class="form-group">
+                <textarea id="bankDetails" class="form-field"></textarea>
+                <label for="bankDetails" class="form-label">Bank Details</label>
+            </div>
+
+            <div class="row" style="margin-top:12px; align-items:center">
+                <div class="toggle">
+                    <input type="checkbox" id="showFooter" checked />
+                    <label for="showFooter" class="small">Include footer: Generated by Hamza Labbaalli |
+                        hlnajz.com</label>
+                </div>
+                <div style="margin-left:auto" class="controls">
+                    <button class="btn" id="exportPDFBtn">Export PDF</button>
+                    <button class="btn" id="exportExcelBtn">Export Excel</button>
+                    <button class="btn" id="previewBtn">Preview JSON</button>
+                </div>
+            </div>
+
+            <footer class="muted"
+                style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px 0;">
+                <img src="assets/logo.png" alt="Logo" class="header-logo" style="margin-bottom: 5px;">
+                <a href="https://hlnajz.com" target="_blank" style="color: inherit; text-decoration: none;">Powered by
+                    hlnajz</a>
+            </footer>
+
         </div>
 
-        <div class="row">
-            <div class="col">
-                <label>From Name</label>
-                <input type="text" id="fromName" class="input" placeholder="Your company or name">
-
-                <label>From Address</label>
-                <textarea id="fromAddress" class="input" rows="2" placeholder="Company address"></textarea>
-            </div>
-            <div class="col">
-                <label>Client Name</label>
-                <input type="text" id="clientName" class="input" placeholder="Client Name">
-
-                <label>Client Address</label>
-                <textarea id="clientAddress" class="input" rows="2" placeholder="Client address"></textarea>
-            </div>
-            <div class="col">
-                <label>Invoice Number</label>
-                <input type="text" id="invoiceNumber" class="input" placeholder="INV-0001">
-
-                <label>Invoice Date</label>
-                <input type="date" id="invoiceDate" class="input">
-
-                <label>Due Date</label>
-                <input type="date" id="dueDate" class="input">
-            </div>
-        </div>
-
-        <label>Company Logo</label>
-        <input type="file" id="logoInput" class="input" accept="image/*">
-        <img id="logoPreview" class="logo-preview" src="" alt="Logo Preview">
-
-        <label>Description / Notes</label>
-        <textarea id="description" class="input" rows="2" placeholder="Invoice description or notes..."></textarea>
-
-        <h3>Items</h3>
-        <table id="itemsTable">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <button class="btn" onclick="addItem()">Add Item</button>
-
-        <h3>Total: $<span id="grandTotal">0.00</span></h3>
-
-        <div class="actions">
-            <button class="btn" onclick="exportPDF()">Export PDF</button>
-            <button class="btn" onclick="exportExcel()">Export Excel</button>
-        </div>
-
-        <footer>
-            Created by Hamza Labbaalli | <a href="https://hlnajz.com" target="_blank">hlnajz.com</a>
-        </footer>
     </div>
 
-    <div id="toast"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
-    <script defer src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
