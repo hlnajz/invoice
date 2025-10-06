@@ -37,7 +37,7 @@
   const clientCity = document.getElementById('clientCity');
   const clientState = document.getElementById('clientState');
   const clientPostal = document.getElementById('clientPostal');
-
+const discountCell = document.getElementById('discountCell');
   const descriptionEl = document.getElementById('description');
   const termsEl = document.getElementById('terms');
   const bankDetailsEl = document.getElementById('bankDetails');
@@ -192,20 +192,33 @@
   }
 
   // Totals
-  function updateTotals() {
+function updateTotals() {
     const currencySym = currencyMap[currencySelectEl.value] || '';
     let subtotal = 0;
+
     Array.from(itemsTableBody.querySelectorAll('tr')).forEach(tr => {
-      const rate = parseFloat(tr.querySelector('.item-rate').value) || 0;
-      const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
-      const total = rate * qty;
-      tr.querySelector('.item-total').textContent = formatNumber(total);
-      subtotal += total;
+        const rate = parseFloat(tr.querySelector('.item-rate').value) || 0;
+        const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
+        const total = rate * qty;
+        tr.querySelector('.item-total').textContent = formatNumber(total);
+        subtotal += total;
     });
+
+    const discount = parseFloat(discountInput.value) || 0;
+    const grandTotal = Math.max(subtotal - discount, 0);
+
     subtotalCell.textContent = formatNumber(subtotal);
-    grandTotalCell.textContent = formatNumber(subtotal);
-  }
-  function formatNumber(num) { return Number(num || 0).toFixed(2); }
+    discountCell.textContent = formatNumber(discount);
+    grandTotalCell.textContent = formatNumber(grandTotal);
+}
+
+function formatNumber(num) { 
+    return Number(num || 0).toFixed(2); 
+}
+
+// Update totals dynamically on discount input change
+discountInput.addEventListener('input', updateTotals);
+
 
   // Build invoiceData object
   function getInvoiceData() {
@@ -254,11 +267,12 @@
         state: clientState.value,
         postal: clientPostal.value
       },
-      items: itemsArr,
-      totals: {
-        subtotal: parseFloat(subtotalCell.textContent) || 0,
-        grandTotal: parseFloat(grandTotalCell.textContent) || 0
-      },
+     items: itemsArr,
+totals: {
+    subtotal: parseFloat(subtotalCell.textContent) || 0,
+    discount: parseFloat(discountCell.textContent) || 0,
+    grandTotal: parseFloat(grandTotalCell.textContent) || 0
+},
       extra: {
         description: descriptionEl.value,
         terms: termsEl.value,
@@ -280,8 +294,9 @@
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  // PDF Export
-  async function exportPDF() {
+  
+// PDF Export
+async function exportPDF() {
   updateTotals();
   const data = getInvoiceData();
   const { jsPDF } = window.jspdf;
@@ -290,7 +305,6 @@
   const margin = 40;
   let y = 40;
 
-  // Font mapping (jsPDF only supports core fonts unless custom fonts embedded)
   const fontMap = {
     'Inter': 'helvetica',
     'Roboto': 'helvetica',
@@ -299,7 +313,6 @@
   const fontForPdf = fontMap[data.meta.font] || 'helvetica';
   doc.setFont(fontForPdf);
 
-  // Theme colors
   const primaryRgb = hexToRgb(data.meta.theme.primary);
   const accentRgb = hexToRgb(data.meta.theme.accent);
 
@@ -325,7 +338,7 @@
 
   y += 80;
 
-  // From / To
+  // From / To boxes
   doc.setFillColor(250, 250, 250);
   doc.rect(margin, y, 260, 80, 'F');
   doc.rect(margin + 280, y, 260, 80, 'F');
@@ -349,16 +362,17 @@
   doc.text(`Date: ${data.meta.invoiceDate}`, margin + 350, invoiceMetaY);
   doc.text(`Due: ${data.meta.dueDate}`, margin + 350, invoiceMetaY + 14);
 
-  // Items table
+  // Items table with Discount column
   const tableStartY = invoiceMetaY + 40;
-  const head = [['S.No', 'Product', 'Rate', 'Qty', 'Total']];
+  const head = [['S.No', 'Product', 'Rate', 'Qty', 'Total', 'Discount']];
 
   const body = data.items.map(it => [
     String(it.sno),
     it.product || '',
     `${Number(it.rate).toFixed(2)} ${data.meta.currencySymbol}`,
     String(it.qty),
-    `${Number(it.total).toFixed(2)} ${data.meta.currencySymbol}`
+    `${Number(it.total).toFixed(2)} ${data.meta.currencySymbol}`,
+    `${Number(it.discount || 0).toFixed(2)} ${data.meta.currencySymbol}`
   ]);
 
   doc.autoTable({
@@ -376,17 +390,22 @@
 
   let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : tableStartY + 140;
 
-  // Totals with padding
+  // Totals including Discount
+  const subtotal = Number(data.totals.subtotal) || 0;
+  const discount = Number(data.totals.discount || 0);
+  const grandTotal = Math.max(subtotal - discount, 0);
+
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Subtotal: ${Number(data.totals.subtotal).toFixed(2)} ${data.meta.currencySymbol}`,
-           pageWidth - margin, finalY, { align: 'right' });
+  doc.text(`Subtotal: ${subtotal.toFixed(2)} ${data.meta.currencySymbol}`, pageWidth - margin, finalY, { align: 'right' });
 
-  finalY += 20;
+  finalY += 18;
+  doc.text(`Discount: ${discount.toFixed(2)} ${data.meta.currencySymbol}`, pageWidth - margin, finalY, { align: 'right' });
+
+  finalY += 18;
   doc.setFontSize(14);
   doc.setTextColor(accentRgb.r, accentRgb.g, accentRgb.b);
-  doc.text(`Grand Total: ${Number(data.totals.grandTotal).toFixed(2)} ${data.meta.currencySymbol}`,
-           pageWidth - margin, finalY, { align: 'right' });
+  doc.text(`Grand Total: ${grandTotal.toFixed(2)} ${data.meta.currencySymbol}`, pageWidth - margin, finalY, { align: 'right' });
 
   // Extra sections
   finalY += 30;
@@ -416,10 +435,10 @@
     doc.text('Generated by Hamza Labbaalli | hlnajz.com', margin, footerY);
   }
 
-  // Save
   const fileName = `${data.meta.invoiceNumber || 'invoice'}.pdf`;
   doc.save(fileName);
 }
+
 
 
   // Excel Export using XLSX
