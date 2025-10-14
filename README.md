@@ -1,11 +1,11 @@
-# SweetInvoice
+# Invoicelyx
 
-**SweetInvoice** is a web-based, no-login invoice generator hosted at [SweetInvoice.com](https://sweetinvoice.com). Designed for freelancers, small businesses, and entrepreneurs, it allows you to create professional invoices quickly and export them as **PDF** or **Excel**.  
+**Invoicelyx** is a web-based, no-login invoice generator hosted at [Invoicelyx](https://invoicelyx.netlify.app/). Designed for freelancers, small businesses, and entrepreneurs, it allows you to create professional invoices quickly and export them as **PDF** or **Excel**.  
 
 ---
 
 ## 🌟 Live Demo
-[https://sweetinvoice.com](https://sweetinvoice.com)
+[https://invoicelyx.netlify.app](https://invoicelyx.netlify.app/)
 
 ---
 
@@ -45,7 +45,7 @@
 ---
 
 ## 🚀 Usage
-1. Open [SweetInvoice.com](https://sweetinvoice.com).  
+1. Open App.  
 2. Fill in your company and client information.  
 3. Add invoice items dynamically.  
 4. Customize your theme, font, and date format.  
